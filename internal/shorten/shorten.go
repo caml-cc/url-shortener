@@ -1,7 +1,6 @@
 package shorten
 
 import (
-	"fmt"
 	"io"
 	"net/http"
 	"net/url"
@@ -33,36 +32,36 @@ func parseShortenPayload(payload string) (string, string, bool) {
 
 func ShortenURL(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
-		http.Error(w, "405", http.StatusMethodNotAllowed)
+		http.Error(w, "405 method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
 	key := r.Header.Get("K")
 	if key != utils.Conf.API_KEY {
-		http.Error(w, "401", http.StatusUnauthorized)
+		http.Error(w, "401 unauthorized", http.StatusUnauthorized)
 		return
 	}
 
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
-		http.Error(w, "Bad request", 400)
+		http.Error(w, "400 Bad request", http.StatusBadRequest)
 		return
 	}
 
 	alias, rawURL, ok := parseShortenPayload(string(body))
 	if !ok {
-		http.Error(w, "400", http.StatusBadRequest)
+		http.Error(w, "400 bad request", http.StatusBadRequest)
 		return
 	}
 
 	url, err := url.ParseRequestURI(rawURL)
 	if err != nil {
-		fmt.Println("Invalid URL:", err)
+		http.Error(w, "400 bad request", http.StatusBadRequest)
 		return
 	}
 
 	if err := db.AddURL(alias, url.String()); err != nil {
-		http.Error(w, "500", http.StatusInternalServerError)
+		http.Error(w, "500 internal server error", http.StatusInternalServerError)
 		return
 	}
 
