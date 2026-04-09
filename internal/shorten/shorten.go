@@ -66,5 +66,5 @@ func ShortenURL(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusCreated)
-	w.Write([]byte("https://s.caml.cc/" + alias + "\n"))
+	w.Write([]byte(r.Host + "/" + alias + "\n"))
 }
