@@ -7,14 +7,17 @@ import (
 	"github.com/joho/godotenv"
 )
 
-func LoadConfig() models.Config {
+var Conf models.Config
+
+func LoadConfig() {
 	godotenv.Load()
 
-	return models.Config{
-		ENV:  fallback(os.Getenv("ENV"), "development"),
-		CRT:  os.Getenv("CRT"),
-		KEY:  os.Getenv("KEY"),
-		PORT: fallback(os.Getenv("PORT"), "5098"),
+	Conf = models.Config{
+		ENV:     fallback(os.Getenv("ENV"), "development"),
+		CRT:     os.Getenv("CRT"),
+		KEY:     os.Getenv("KEY"),
+		PORT:    fallback(os.Getenv("PORT"), "5099"),
+		API_KEY: os.Getenv("API_KEY"),
 	}
 }
 

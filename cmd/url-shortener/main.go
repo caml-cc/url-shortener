@@ -1,4 +1,4 @@
-package urlshortener
+package main
 
 import (
 	"url-shortener/api"
@@ -7,13 +7,12 @@ import (
 )
 
 func main() {
-	DB, err := database.InitSQLiteDB()
+	utils.LoadConfig()
+	err := database.InitSQLiteDB()
 	if err != nil {
 		panic(err)
 	}
-	defer DB.Close()
+	defer database.DbClose()
 
-	conf := utils.LoadConfig()
-
-	api.StartServer(conf)
+	api.StartServer(utils.Conf)
 }

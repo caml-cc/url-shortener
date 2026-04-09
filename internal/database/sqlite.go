@@ -7,21 +7,30 @@ import (
 	migrate "github.com/rubenv/sql-migrate"
 )
 
-func InitSQLiteDB() (*sql.DB, error) {
-	db, err := sql.Open("sqlite3", "./internal/database/url-shortener.db")
+var DB *sql.DB
+
+func InitSQLiteDB() error {
+	var err error
+	DB, err = sql.Open("sqlite3", "./internal/database/url-shortener.db")
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	_, err = db.Exec("PRAGMA foreign_keys = ON")
+	_, err = DB.Exec("PRAGMA foreign_keys = ON")
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	migrations := &migrate.FileMigrationSource{
 		Dir: "internal/database/migrations",
 	}
 
-	_, err = migrate.Exec(db, "sqlite3", migrations, migrate.Up)
-	return db, err
+	_, err = migrate.Exec(DB, "sqlite3", migrations, migrate.Up)
+	return err
+}
+
+func DbClose() {
+	if DB != nil {
+		DB.Close()
+	}
 }

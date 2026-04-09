@@ -1,4 +1,11 @@
-
 -- +migrate Up
+CREATE TABLE
+    IF NOT EXISTS ALIAS (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        alias TEXT NOT NULL UNIQUE,
+        url TEXT NOT NULL,
+        createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
 
 -- +migrate Down
+DROP TABLE IF EXISTS link;

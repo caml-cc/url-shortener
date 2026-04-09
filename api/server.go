@@ -5,13 +5,16 @@ import (
 	"log"
 	"net/http"
 	"url-shortener/internal/models"
+	"url-shortener/internal/shorten"
 
 	"github.com/gorilla/mux"
 )
 
 func StartServer(conf models.Config) {
-
 	server := mux.NewRouter()
+
+	server.HandleFunc("/shorten", shorten.ShortenURL)
+	server.HandleFunc("/{alias}", shorten.RedirectURL)
 
 	fmt.Printf("Server running on port: %s", conf.PORT)
 	switch conf.ENV {
