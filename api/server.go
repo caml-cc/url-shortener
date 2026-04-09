@@ -17,12 +17,5 @@ func StartServer(conf models.Config) {
 	server.HandleFunc("/{alias}", shorten.RedirectURL)
 
 	fmt.Printf("Server running on port: %s", conf.PORT)
-	switch conf.ENV {
-	case "production":
-		http.ListenAndServeTLS(":"+conf.PORT, conf.CRT, conf.KEY, server)
-	case "staging":
-		log.Fatal(http.ListenAndServeTLS(":"+conf.PORT, conf.CRT, conf.KEY, server))
-	default:
-		log.Fatal(http.ListenAndServe(":"+conf.PORT, server))
-	}
+	log.Fatal(http.ListenAndServe(":"+conf.PORT, server))
 }

@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"errors"
 	"os"
 	"url-shortener/internal/models"
 
@@ -9,16 +10,22 @@ import (
 
 var Conf models.Config
 
-func LoadConfig() {
-	godotenv.Load()
+func LoadConfig() error {
+	err := godotenv.Load()
+	if err != nil {
+		return err
+	}
 
 	Conf = models.Config{
-		ENV:     fallback(os.Getenv("ENV"), "development"),
-		CRT:     os.Getenv("CRT"),
-		KEY:     os.Getenv("KEY"),
-		PORT:    fallback(os.Getenv("PORT"), "5099"),
+		PORT:    os.Getenv("PORT"),
 		API_KEY: os.Getenv("API_KEY"),
 	}
+
+	if Conf.API_KEY == "" || Conf.PORT == "" {
+		return errors.New("env file is not filled in correctly")
+	}
+
+	return nil
 }
 
 func fallback(value, def string) string {
