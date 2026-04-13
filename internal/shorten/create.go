@@ -35,7 +35,7 @@ func parseShortenPayload(payload string) (string, string, bool) {
 	return alias, rawURL, true
 }
 
-func ShortenURL(w http.ResponseWriter, r *http.Request) {
+func CreateURL(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
 		return
