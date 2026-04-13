@@ -37,25 +37,25 @@ func parseShortenPayload(payload string) (string, string, bool) {
 
 func ShortenURL(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
-		http.Error(w, "405 method not allowed", http.StatusMethodNotAllowed)
+		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
 	key := r.Header.Get("K")
 	if key != utils.Conf.API_KEY {
-		http.Error(w, "401 unauthorized", http.StatusUnauthorized)
+		http.Error(w, "unauthorized", http.StatusUnauthorized)
 		return
 	}
 
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
-		http.Error(w, "400 Bad request", http.StatusBadRequest)
+		http.Error(w, "bad request body", http.StatusBadRequest)
 		return
 	}
 
 	alias, rawURL, ok := parseShortenPayload(string(body))
 	if !ok {
-		http.Error(w, "400 bad request", http.StatusBadRequest)
+		http.Error(w, "bad request body", http.StatusBadRequest)
 		return
 	}
 
@@ -63,15 +63,15 @@ func ShortenURL(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		switch err {
 		case utils.ErrUnsupportedURL:
-			http.Error(w, "Only http and https are allowed", http.StatusBadRequest)
+			http.Error(w, "only http and https are allowed", http.StatusBadRequest)
 		default:
-			http.Error(w, "Invalid URL", http.StatusBadRequest)
+			http.Error(w, "invalid URL", http.StatusBadRequest)
 		}
 		return
 	}
 
 	if err := db.AddURL(alias, url.String()); err != nil {
-		http.Error(w, "500 internal server error", http.StatusInternalServerError)
+		http.Error(w, "internal server error", http.StatusInternalServerError)
 		return
 	}
 

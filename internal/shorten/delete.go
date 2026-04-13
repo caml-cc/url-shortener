@@ -10,26 +10,26 @@ import (
 
 func DeleteURL(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
-		http.Error(w, "405 method not allowed", http.StatusMethodNotAllowed)
+		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
 	key := r.Header.Get("K")
 	if key != utils.Conf.API_KEY {
-		http.Error(w, "401 unauthorized", http.StatusUnauthorized)
+		http.Error(w, "unauthorized", http.StatusUnauthorized)
 		return
 	}
 
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
-		http.Error(w, "400 Bad request", http.StatusBadRequest)
+		http.Error(w, "bad request body", http.StatusBadRequest)
 		return
 	}
 
 	alias := strings.TrimSpace(string(body))
 
 	if err := db.DeleteURL(alias); err != nil {
-		http.Error(w, "500 internal server error", http.StatusInternalServerError)
+		http.Error(w, "internal server error", http.StatusInternalServerError)
 		return
 	}
 

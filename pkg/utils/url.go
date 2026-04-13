@@ -29,6 +29,8 @@ func NormalizeURL(input string) (*url.URL, error) {
 		return nil, ErrInvalidURL
 	}
 
+	parsed.Host = strings.ToLower(parsed.Host)
+
 	switch parsed.Scheme {
 	case "http", "https":
 		return parsed, nil
