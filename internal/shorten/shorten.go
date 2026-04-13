@@ -2,17 +2,22 @@ package shorten
 
 import (
 	"io"
+	"math/rand"
 	"net/http"
-	"net/url"
 	"strings"
+	"time"
 	"url-shortener/pkg/db"
 	"url-shortener/pkg/utils"
 )
 
+const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+
 func parseShortenPayload(payload string) (string, string, bool) {
 	trimmed := strings.TrimSpace(payload)
 
-	if strings.Count(trimmed, "|") != 1 {
+	if strings.Count(trimmed, "|") == 0 {
+		return randomString(8), trimmed, true
+	} else if strings.Count(trimmed, "|") != 1 {
 		return "", "", false
 	}
 
@@ -54,9 +59,14 @@ func ShortenURL(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	url, err := url.ParseRequestURI(rawURL)
+	url, err := utils.NormalizeURL(rawURL)
 	if err != nil {
-		http.Error(w, "400 bad request", http.StatusBadRequest)
+		switch err {
+		case utils.ErrUnsupportedURL:
+			http.Error(w, "Only http and https are allowed", http.StatusBadRequest)
+		default:
+			http.Error(w, "Invalid URL", http.StatusBadRequest)
+		}
 		return
 	}
 
@@ -67,4 +77,13 @@ func ShortenURL(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusCreated)
 	w.Write([]byte(r.Host + "/" + alias + "\n"))
+}
+
+func randomString(n int) string {
+	b := make([]byte, n)
+	rand.NewSource(time.Now().UnixNano())
+	for i := range b {
+		b[i] = charset[rand.Intn(len(charset))]
+	}
+	return string(b)
 }
