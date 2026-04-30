@@ -22,6 +22,7 @@ The app requires a `.env` file in the project root.
 ```env
 PORT=5099
 API_KEY=abc123
+RAND_CHARS=6 # Optional, defaults to 8 when missing.
 ```
 
 If either value is missing, startup fails.

@@ -2,6 +2,7 @@ package shorten
 
 import (
 	"io"
+	"math"
 	"math/rand"
 	"net/http"
 	"strings"
@@ -16,7 +17,19 @@ func parseShortenPayload(payload string) (string, string, bool) {
 	trimmed := strings.TrimSpace(payload)
 
 	if strings.Count(trimmed, "|") == 0 {
-		return randomString(8), trimmed, true
+		max_poss := int(math.Pow(62, float64(utils.Conf.RAND_CHARS)))
+		i := 1
+		for i = 1; i <= max_poss; i++ {
+			temp := randomString(utils.Conf.RAND_CHARS)
+			_, err := db.GetURL(temp)
+			if err != nil {
+				return temp, trimmed, true
+			}
+		}
+		if i > max_poss {
+			return "", "", false
+		}
+
 	} else if strings.Count(trimmed, "|") != 1 {
 		return "", "", false
 	}
@@ -71,6 +84,10 @@ func CreateURL(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := db.AddURL(alias, url.String()); err != nil {
+		if err.Error() == "UNIQUE constraint failed: ALIAS.alias" {
+			http.Error(w, "alias already taken", http.StatusBadRequest)
+			return
+		}
 		http.Error(w, "internal server error", http.StatusInternalServerError)
 		return
 	}

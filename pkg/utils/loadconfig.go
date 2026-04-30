@@ -3,6 +3,7 @@ package utils
 import (
 	"errors"
 	"os"
+	"strconv"
 	"url-shortener/internal/models"
 
 	"github.com/joho/godotenv"
@@ -16,9 +17,15 @@ func LoadConfig() error {
 		return err
 	}
 
+	temp_num, err := strconv.Atoi(fallback(os.Getenv("RAND_CHARS"), "8"))
+	if err != nil || temp_num <= 0 {
+		return errors.New("RAND_CHARS value must be a positive integer")
+	}
+
 	Conf = models.Config{
-		PORT:    os.Getenv("PORT"),
-		API_KEY: os.Getenv("API_KEY"),
+		PORT:       os.Getenv("PORT"),
+		API_KEY:    os.Getenv("API_KEY"),
+		RAND_CHARS: temp_num,
 	}
 
 	if Conf.API_KEY == "" || Conf.PORT == "" {
